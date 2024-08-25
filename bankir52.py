@@ -1,37 +1,49 @@
+from typing import Optional
+
 class BankAccount:
     """Класс для выполнения банковских операций с аунтификацией по ФИО"""
-    def __init__(self, __balance = 0.0, owner_fio = 'Иванов Иван Иванович'):
+    def __init__(self, __balance: float, owner_full_name: str):
         self.__balance = __balance
-        self.owner_fio = owner_fio
+        self.owner_full_name = owner_full_name
+        self.valid = False
 
-    def deposit(self, value: float, fio: str):
-        """Если пользователь ввел корректное ФИО, то введеная им сумма зачислится на счет"""
-        if fio == self.owner_fio:
+
+    def validate(self, full_name: str) -> Optional[str]:
+        """Аунтификация по ФИО"""
+        if full_name == self.owner_full_name:
+            self.valid = True
+            return f'Вы успешно вошли в аккаунт'
+        elif full_name != self.owner_full_name: # Предупреждение если ФИО неправильное
+            return f'Такой пользователь не найден!'
+
+
+    def deposit(self, value: float) -> Optional[str]:
+        """Пополнение баланса"""
+        if self.valid == True:
             self.__balance += value
-            return f'{self.owner_fio}, на ваш счет поступило {value}, баланс составляет {round(self.__balance, 2)}'
-        elif fio != self.owner_fio: # Если ФИО не верное то отобразится предупреждение
-            return f'Такой пользователь не найден!'
-
-    def withdraw(self, value: float, fio: str):
-        """Если пользователь ввел корректное ФИО, то введеная им сумма выведется со счета"""
-        if fio == self.owner_fio and value <= self.__balance:
-            self.__balance -= value
-            return f'{self.owner_fio}, с вашего счета списано {value}, баланс составляет {round(self.__balance, 2)}'
-        elif fio == self.owner_fio and value > self.__balance: # Если на счете недостаточно средств, то отобразится предупреждение
-            return f'У вас на счете недостаточно средств для вывода!'
-        elif fio != self.owner_fio: # Если ФИО не верное то отобразится предупреждение
-            return f'Такой пользователь не найден!'
-
-    def get_balance(self, fio: str):
-        """Если пользователь ввел корректное ФИО, то баланс его счета отобразится"""
-        if fio == self.owner_fio:
-            return f'{self.owner_fio}, ваш баланс составляет {self.__balance}'
-        else: # Если ФИО не верное то отобразится предупреждение
-            return f'Такой пользователь не найден!'
+            return f'{self.owner_full_name}, на ваш счет поступило {value}, баланс составляет {round(self.__balance, 2)}'
 
 
-account = BankAccount(520.5, 'Денисов Денис Денисович')
-print(account.get_balance('Денисов Денис Денисович'))
-print(account.deposit(40.2, 'Денисов Денис Денисович'))
-print(account.withdraw(5230,'Денисов Денис Денисович'))
-print(account.withdraw(52,'Денисов Денис Денисович'))
+    def withdraw(self, value: float) -> Optional[str]:
+        """Вывод с баланса"""
+        if self.valid == True:
+            if value <= self.__balance:
+                self.__balance -= value
+                return f'{self.owner_full_name}, с вашего счета списано {value}, баланс составляет {round(self.__balance, 2)}'
+            elif value > self.__balance: # Предупреждение нехватки средств
+                return f'У вас на счете недостаточно средств для вывода!'
+
+
+    def get_balance(self) -> Optional[str]:
+        """Отображение баланса"""
+        if self.valid == True:
+            return f"{self.owner_full_name}, ваш баланс составляет {self.__balance}"
+
+
+account = BankAccount(520.0,'Денисов Денис Денисович')
+account.validate('Денисов Денис Денисович')
+account.get_balance()
+account.deposit(50)
+account.withdraw(700)
+account.get_balance()
+account.withdraw(73)
