@@ -18,6 +18,7 @@ class BankAccount:
 
     @contextmanager
     def open_session(self):
+        """Автоматическая работа с сессей базы данных"""
         session = Session()
         try:
             yield session
@@ -30,6 +31,7 @@ class BankAccount:
 
 
     def authenticated(func):
+        """Декоратор авторизации"""
         @wraps(func)
         def wrapper(self, *args, **kwargs):
             if not self.valid:
@@ -39,7 +41,7 @@ class BankAccount:
 
 
     def authenticate_user(self, full_name, input_card_number, input_card_password: int) -> str:
-        """Аунтификация по паролю"""
+        """Аунтификация по паролю к карте"""
         with self.open_session() as session:
             user = session.query(User).filter_by(
                 name=full_name,
@@ -66,7 +68,7 @@ class BankAccount:
             self.__balance -= value
             self.update_balance()
             return f'{self.owner_full_name}, с вашего счета списано {value}, баланс составляет {round(self.__balance, 2)}'
-        elif value > self.__balance:  # Предупреждение нехватки средств
+        elif value > self.__balance:  # Варн нехватки средств
             return f'У вас на счете недостаточно средств для вывода!'
 
     @authenticated
@@ -76,6 +78,7 @@ class BankAccount:
 
 
     def update_balance(self) -> None:
+        """Пополнение баланса в БД"""
         with self.open_session() as session:
             user = session.query(User).filter_by(name=self.owner_full_name, card_number=self.owner_card_number).first()
             if user:
@@ -83,6 +86,7 @@ class BankAccount:
 
 
     def add_user(self) -> None:
+        """Добавление пользователя в БД"""
         with self.open_session() as session:
             user = session.query(User).filter_by(name=self.owner_full_name, card_number=self.owner_card_number).first()
             if not user:
