@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, Float
+from sqlalchemy import create_engine, Column, Integer, String, Float, Boolean
 from sqlalchemy.orm import declarative_base
 
 
@@ -14,6 +14,8 @@ class User(Base):
     card_number = Column(Integer, nullable=False)
     card_password = Column(Integer, nullable=False)
     balance = Column(Float, nullable=False)
+    phone_number = Column(String, nullable=False)
+    auth = Column(Boolean, nullable=False)
 
 
 Base.metadata.create_all(engine)
